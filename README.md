@@ -27,7 +27,6 @@ import "github.com/blbergwall/depend"
 Create a new dependency builder:
 ```
 builder := depend.New()
-}
 ```
 
 Assume the following interfaces and implementations that will be depended on:
@@ -75,9 +74,9 @@ Once all dependencies have been added:
 ```
 provider, err := builder.Build()
 ```
-This causes all added functions to be called at most once.  If any functions
-return errors or any functions have dependencies that have not been added or
-there are any circular references an error will be returned.
+This causes all added functions to be called once.  If any functions return
+errors or any functions have dependencies that have not been added or there
+are any circular references an error will be returned.
 
 Now given a function:
 ```
@@ -96,13 +95,13 @@ the last result from the function if it is an error.
 If more than one of the same interface is added then only a slice of that
 interface will be provided.
 
-For more examples see the [tests](https://github.com/blbergwall/depend/blob/master/depend)test.go)
+For more examples see the [tests](https://github.com/blbergwall/depend/blob/master/depend_test.go)
 
 Also check out the [documentation](http://godoc.org/github.com/blbergwall/depend)
 
 ### Why?
 Needed a dependency injection system for a project I was working on and
-existing systems I found did not work quite the way I wanted.
+existing systems I found did not work the way I wanted.
 
 One of the main points of dependency injection is to make code more testable.
 Only injecting interfaces makes code more testable and anything can be wrapped
