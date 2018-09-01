@@ -98,29 +98,10 @@ func (p *provider) Build() (Provider, []error) {
 		for itype, value := range p.values {
 			kind := value.Kind()
 			if kind == reflect.Slice && value.Type().Elem() == valueType {
-				s := value.Interface().([]reflect.Value)
-				complete := true
-				for i, svalue := range s {
-					if svalue.Kind() == reflect.Func {
-						cvalue, err, errBad := p.resolveProvider(svalue)
-						if errBad != nil {
-							return nil, []error{errBad}
-						}
-						if err != nil {
-							errs = append(errs, err)
-							complete = false
-						} else {
-							p.producers--
-							s[i] = cvalue
-						}
-					}
-				}
-				if complete {
-					cs := reflect.MakeSlice(itype, 0, len(s))
-					for _, value = range s {
-						cs = reflect.Append(cs, value)
-					}
-					p.values[itype] = cs
+				var errBad error
+				errs, errBad = p.buildSlice(itype, value, errs)
+				if errBad != nil {
+					return nil, []error{errBad}
 				}
 			} else if kind == reflect.Func {
 				cvalue, err, errBad := p.resolveProvider(value)
@@ -140,6 +121,34 @@ func (p *provider) Build() (Provider, []error) {
 		return nil, errs
 	}
 	return p, nil
+}
+
+func (p *provider) buildSlice(itype reflect.Type, value reflect.Value, errs []error) ([]error, error) {
+	s := value.Interface().([]reflect.Value)
+	complete := true
+	for i, svalue := range s {
+		if svalue.Kind() == reflect.Func {
+			cvalue, err, errBad := p.resolveProvider(svalue)
+			if errBad != nil {
+				return errs, errBad
+			}
+			if err != nil {
+				errs = append(errs, err)
+				complete = false
+			} else {
+				p.producers--
+				s[i] = cvalue
+			}
+		}
+	}
+	if complete {
+		cs := reflect.MakeSlice(itype, 0, len(s))
+		for _, value = range s {
+			cs = reflect.Append(cs, value)
+		}
+		p.values[itype] = cs
+	}
+	return errs, nil
 }
 
 func (p *provider) resolveProvider(f reflect.Value) (reflect.Value, error, error) {
