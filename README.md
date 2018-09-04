@@ -31,37 +31,19 @@ builder := depend.New()
 
 Assume the following interfaces and implementations that will be depended on:
 ```
-type testInterface1 interface {
-	Method1() string
-}
+type testInterface1 interface { Method1() string }
+type testInterface2 interface { Method2() string }
 
-type testInterface2 interface {
-	Method2() string
-}
+type testStruct1 struct { field string }
+type testStruct2 struct { field string }
 
-type testStruct1 struct {
-	field string
-}
-
-type testStruct2 struct {
-	field string
-}
-
-func new1() testInterface1 {
-	return &testStruct1{field: "testInterface1"}
-}
-
-func (ts1 *testStruct1) Method1() string {
-	return ts1.field
-}
+func new1() testInterface1 { return &testStruct1{field: "testInterface1"} }
+func (ts1 *testStruct1) Method1() string { return ts1.field }
 
 func new2Consume1(i1 testInterface1) testInterface1 {
 	return &testStruct1{field: "testInterface2 from 1"}
 }
-
-func (ts2 *testStruct2) Method2() string {
-	return ts2.field
-}
+func (ts2 *testStruct2) Method2() string { return ts2.field }
 ```
 
 Then these can be added with:
@@ -100,16 +82,11 @@ For more examples see the [tests](https://github.com/blbergwall/depend/blob/mast
 Also check out the [documentation](http://godoc.org/github.com/blbergwall/depend)
 
 ### Why?
-Needed a dependency injection system for a project I was working on and
-existing systems I found did not work the way I wanted.
+Needed a dependency injection system for a project and existing systems seemed overly complicated.
 
 One of the main points of dependency injection is to make code more testable.
 Only injecting interfaces makes code more testable and anything can be wrapped
-in an interface.  So I am hoping the interface only constraint will be a net
-benefit.
-
-Also I am fairly new to go and publishing open source code and want to learn
-more about both.
+in an interface.  So hoping the interface only constraint will be a net benefit.
 
 ### License
 [MIT](https://github.com/blbergwall/depend/blob/master/LICENSE.txt)
